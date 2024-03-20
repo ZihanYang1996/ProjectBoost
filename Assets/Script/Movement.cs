@@ -14,15 +14,14 @@ public class Movement : MonoBehaviour
 
     Rigidbody rb;
 
+    RocketAudio rocketAudio;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        rocketAudio = gameObject.GetComponent<RocketAudio>();
     }
 
-    void Start()
-    {
-        
-    }
 
     void Update()
     {
@@ -40,10 +39,14 @@ public class Movement : MonoBehaviour
         if (value.isPressed)
         {
             thrusting = true;
+            rocketAudio.PlayThrusAudio();
+            Debug.Log("Thrusting");
         }
         else
         {
             thrusting = false;
+            rocketAudio.StopThrustAudio();
+            Debug.Log("Not thrusting");
         }
     }
 
