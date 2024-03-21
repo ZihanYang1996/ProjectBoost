@@ -7,12 +7,36 @@ using UnityEngine.SceneManagement;
 public class CollisionHandler : MonoBehaviour
 {
     RocketAudio rocketAudio;
+    ParticleEffect particleEffect;
 
     bool isTransitioning = false;
 
     void Awake()
     {
         rocketAudio = gameObject.GetComponent<RocketAudio>();
+        particleEffect = gameObject.GetComponent<ParticleEffect>();
+    }
+
+    void Update()
+    {
+        RespondToDebugKeys();
+    }
+
+    void RespondToDebugKeys()
+    {
+        if (Debug.isDebugBuild)
+        {
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                Debug.Log("Debug: Loading next level");
+                LoadNextScene();
+            }
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                isTransitioning = !isTransitioning;
+                Debug.Log("Debug: Collision turned on: " + !isTransitioning);
+            }
+        }
     }
     
     void OnCollisionEnter(Collision other)
@@ -27,12 +51,14 @@ public class CollisionHandler : MonoBehaviour
             case "Finish":
                 rocketAudio.PlayFinishAudio();
                 gameObject.GetComponent<PlayerInput>().enabled = false;
+                particleEffect.PlaySuccess(other.contacts[0].point);
                 Invoke("LoadNextScene", 2f);
                 isTransitioning = true;
                 break;
             default:
                 rocketAudio.PlayCrashAudio();
                 gameObject.GetComponent<PlayerInput>().enabled = false;
+                particleEffect.PlayExplosion(other.contacts[0].point);
                 Invoke("ReloadScene", 2f);
                 isTransitioning = true;
                 break;

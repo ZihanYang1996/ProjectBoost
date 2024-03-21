@@ -18,10 +18,12 @@ public class RocketAudio : MonoBehaviour
 
     
     AudioSource audioSource;
+    // AudioSource oneShotAudioSource;
     
     void Awake()
     {
         audioSource = gameObject.GetComponent<AudioSource>();
+        // oneShotAudioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = thrustAudio;
         audioSource.volume = thrustVolume;
     }
@@ -38,11 +40,16 @@ public class RocketAudio : MonoBehaviour
 
     public void PlayCrashAudio()
     {
-        audioSource.PlayOneShot(crashAudio, crashVolume);
+        // audioSource.PlayOneShot(crashAudio, crashVolume);  // Not working when thrusters are playing
+        AudioSource.PlayClipAtPoint(crashAudio, transform.position, crashVolume);
+        // oneShotAudioSource.PlayOneShot(crashAudio, crashVolume);
+
     }
 
     public void PlayFinishAudio()
     {
-        audioSource.PlayOneShot(finishAudio, finishVolume);
+        // audioSource.PlayOneShot(finishAudio, finishVolume);
+        AudioSource.PlayClipAtPoint(finishAudio, transform.position, finishVolume);
+        // oneShotAudioSource.PlayOneShot(finishAudio, finishVolume);
     }
 }

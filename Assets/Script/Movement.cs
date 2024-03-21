@@ -15,23 +15,46 @@ public class Movement : MonoBehaviour
     Rigidbody rb;
 
     RocketAudio rocketAudio;
+    Thrusters thrusters;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rocketAudio = gameObject.GetComponent<RocketAudio>();
+        thrusters = gameObject.GetComponent<Thrusters>();
     }
 
 
     void Update()
     {
-        Rotate();
+        
         Thrust();
+    }
+
+    void FixedUpdate()
+    {
+        Rotate();
     }
 
     void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
+        if (moveInput.x > 0)
+        {
+            thrusters.PlayLeftThrust();
+            thrusters.StopRightThrust();
+        }
+        else if (moveInput.x < 0)
+        {
+            thrusters.PlayRightThrust();
+            thrusters.StopLeftThrust();
+        }
+        else
+        {
+            thrusters.StopRightThrust();
+            thrusters.StopLeftThrust();
+        }
+
     }
 
     void OnThrust(InputValue value)
@@ -40,12 +63,14 @@ public class Movement : MonoBehaviour
         {
             thrusting = true;
             rocketAudio.PlayThrusAudio();
+            thrusters.PlayMainThrust();
             Debug.Log("Thrusting");
         }
         else
         {
             thrusting = false;
             rocketAudio.StopThrustAudio();
+            thrusters.StopMainThrust();
             Debug.Log("Not thrusting");
         }
     }
@@ -54,15 +79,29 @@ public class Movement : MonoBehaviour
     {
         if (moveInput.x > 0)
         {
+            // rb.AddRelativeTorque(Vector3.forward * -rotationSpeed * Time.deltaTime, ForceMode.Force);  //Hard to control
+            
+            rb.angularVelocity = Vector3.zero;  // remove rotation due to inertia first
+            rb.MoveRotation(Quaternion.Euler(0, 0, rb.rotation.eulerAngles.z - rotationSpeed * Time.deltaTime));
+
+            /*** Not smooth
             rb.freezeRotation = true;  // freeze rotation so we can manually rotate
             transform.Rotate(Vector3.forward * -rotationSpeed * Time.deltaTime, Space.Self);
             rb.freezeRotation = false;  // unfreeze rotation so the physics system can take over
+            ***/
         }
         else if (moveInput.x < 0)
         {
+            // rb.AddRelativeTorque(Vector3.forward * rotationSpeed * Time.deltaTime, ForceMode.Force);  //Hard to control
+
+            rb.angularVelocity = Vector3.zero;  // remove rotation due to inertia first
+            rb.MoveRotation(Quaternion.Euler(0, 0, rb.rotation.eulerAngles.z + rotationSpeed * Time.deltaTime));
+            
+            /*** Not smooth
             rb.freezeRotation = true;  // freeze rotation so we can manually rotate
             transform.Rotate(Vector3.forward * rotationSpeed * Time.deltaTime, Space.Self);
             rb.freezeRotation = false;  // unfreeze rotation so the physics system can take over
+            ***/
         }
     }
 
